@@ -1,0 +1,45 @@
+import numpy as np
+
+def gauss_elimination(A, b):
+    n = len(b)
+    x = np.zeros(n)
+
+    for pivot_row in range(n):
+        # Pivoting: Swap rows if necessary to bring a non-zero pivot element
+        if A[pivot_row, pivot_row] == 0:
+            for i in range(pivot_row + 1, n):
+                if A[i, pivot_row] != 0:
+                    A[[pivot_row, i]] = A[[i, pivot_row]]
+                    b[pivot_row], b[i] = b[i], b[pivot_row]
+                    break
+
+        # Elimination: Zero out elements below the pivot
+        for row in range(pivot_row + 1, n):
+            factor = A[row, pivot_row] / A[pivot_row, pivot_row]
+            A[row, pivot_row:] -= factor * A[pivot_row, pivot_row:]
+            b[row] -= factor * b[pivot_row]
+
+    # Back Substitution
+    for i in range(n - 1, -1, -1):
+        x[i] = (b[i] - np.dot(A[i, i+1:], x[i+1:])) / A[i, i]
+
+    return x
+
+# Input matriks augmented dari pengguna
+n = int(input("Masukkan jumlah variabel/ukuran matriks (n): "))
+print("Masukkan matriks augmented [A|b] (baris per baris):")
+A = np.zeros((n, n))
+b = np.zeros(n)
+
+for i in range(n):
+    row = input(f"Baris {i + 1}: ").split()
+    A[i] = [float(val) for val in row[:n]]
+    b[i] = float(row[n])
+
+# Eliminasi Gauss
+solution = gauss_elimination(A, b)
+
+# Output solusi sistem persamaan linear
+print("\nSolusi Sistem Persamaan Linear:")
+for i, sol in enumerate(solution):
+    print(f"x{i + 1} = {sol}")
